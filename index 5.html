@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ego vs Essence Reflection</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .fade-enter { opacity: 0; transform: translateY(10px); transition: all 0.4s ease; }
+    .fade-enter-active { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans">
+
+  <div class="min-h-screen flex items-center justify-center p-6" id="start-screen">
+    <div class="bg-white rounded-2xl shadow-xl p-10 max-w-xl text-center">
+      <h1 class="text-3xl font-bold mb-4">Ego vs Essence</h1>
+      <p class="mb-6 text-lg">This is not a test. This is a mirror. <br> You're about to explore how you show up in the world—and where your truth might be hiding.</p>
+      <button id="startBtn" class="bg-indigo-600 text-white px-6 py-3 rounded-full text-lg shadow hover:bg-indigo-700">Begin Reflection</button>
+    </div>
+  </div>
+
+  <div class="hidden max-w-2xl mx-auto p-6 space-y-10" id="quiz-container"></div>
+
+  <div class="hidden max-w-2xl mx-auto p-6 text-center" id="result-screen">
+    <div class="bg-white rounded-2xl shadow p-6">
+      <div id="resultIcon" class="text-6xl mb-4"></div>
+      <h2 id="resultTitle" class="text-2xl font-bold mb-2"></h2>
+      <p id="resultDescription" class="mb-4 text-gray-700"></p>
+      <p id="resultReflection" class="italic text-indigo-600 mb-4"></p>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      { text: "When someone challenges your idea in a group setting, what’s your immediate internal response?",
+        options: ["I feel irritated and want to prove I’m right.",
+                  "I stay quiet but stew internally.",
+                  "I’m curious about their perspective, even if I feel a bit defensive.",
+                  "I welcome the input—it might make the idea better."] },
+      { text: "You receive unexpected praise for something you’ve done. How do you feel?",
+        options: ["Relieved—people finally see my value.",
+                  "Happy but wondering if I can live up to it again.",
+                  "Grateful, but I know it’s not about the praise.",
+                  "Motivated to keep showing up in alignment with who I am."] },
+      { text: "You’re facing a major decision with uncertain outcomes. How do you approach it?",
+        options: ["I analyze all possible outcomes and avoid risk.",
+                  "I try to choose what looks best to others.",
+                  "I check in with what feels true to me, even if it’s scary.",
+                  "I act based on values, not just outcomes."] },
+      { text: "When you're creating something (art, business, writing, etc.), what drives the process?",
+        options: ["The recognition it might bring.",
+                  "Getting it 'right' so people will like it.",
+                  "Expressing something meaningful and honest.",
+                  "Channeling something that feels bigger than me."] },
+      { text: "When someone gives you critical feedback, what’s your first reaction?",
+        options: ["I feel attacked or judged.",
+                  "I try to fix it quickly to avoid further criticism.",
+                  "I take a breath and listen with curiosity.",
+                  "I value it—it helps refine who I am becoming."] }
+    ];
+
+    const archetypes = [
+      {
+        name: "The Defender",
+        icon: "🛡️",
+        range: [0, 6],
+        description: "You’ve armored up. The world feels like something to conquer or survive. You might be craving validation, control, or protection.",
+        reflection: "What would it look like to soften without losing your strength?"
+      },
+      {
+        name: "The Seeker",
+        icon: "🔍",
+        range: [7, 12],
+        description: "You’re noticing your patterns. There’s a subtle war between ego's familiar grip and essence’s quiet whisper.",
+        reflection: "Where are you still seeking approval instead of giving yourself permission?"
+      },
+      {
+        name: "The Alchemist",
+        icon: "🔥",
+        range: [13, 17],
+        description: "You’re transmuting fear into fuel. You act with intention, even when it's hard. You are in the fire—and learning to dance in it.",
+        reflection: "What truth are you ready to live, even if no one claps?"
+      },
+      {
+        name: "The Luminary",
+        icon: "🌌",
+        range: [18, 20],
+        description: "You lead from a place beyond needing to prove. You *move like meaning*.",
+        reflection: "Where are you being called to model this way of being for others?"
+      }
+    ];
+
+    const quizContainer = document.getElementById("quiz-container");
+    const resultScreen = document.getElementById("result-screen");
+    const startScreen = document.getElementById("start-screen");
+    const startBtn = document.getElementById("startBtn");
+
+    startBtn.addEventListener("click", () => {
+      startScreen.classList.add("hidden");
+      quizContainer.classList.remove("hidden");
+      loadQuestion(0);
+    });
+
+    let userAnswers = [];
+
+    function loadQuestion(index) {
+      quizContainer.innerHTML = "";
+
+      const q = questions[index];
+      const block = document.createElement("div");
+      block.className = "bg-white rounded-2xl shadow p-6";
+      block.innerHTML = `
+        <h2 class="text-xl font-semibold mb-4">${index + 1}. ${q.text}</h2>
+        <div class="space-y-2">
+          ${q.options.map((opt, i) => `
+            <button class="block w-full text-left bg-gray-100 rounded-xl p-3 cursor-pointer hover:bg-gray-200" data-score="${i}">
+              ${opt}
+            </button>`).join("")}
+        </div>
+      `;
+      quizContainer.appendChild(block);
+
+      block.querySelectorAll("button").forEach(btn => {
+        btn.addEventListener("click", () => {
+          userAnswers.push(parseInt(btn.dataset.score));
+          if (index + 1 < questions.length) {
+            loadQuestion(index + 1);
+          } else {
+            showResults();
+          }
+        });
+      });
+    }
+
+    function showResults() {
+      const totalScore = userAnswers.reduce((a, b) => a + b, 0);
+      const result = archetypes.find(type => totalScore >= type.range[0] && totalScore <= type.range[1]);
+
+      document.getElementById("resultIcon").textContent = result.icon;
+      document.getElementById("resultTitle").textContent = `You are ${result.name}`;
+      document.getElementById("resultDescription").textContent = result.description;
+      document.getElementById("resultReflection").textContent = `Reflection: ${result.reflection}`;
+
+      quizContainer.classList.add("hidden");
+      resultScreen.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  </script>
+</body>
+</html>
