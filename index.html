@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ego vs Essence Tool</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans">
+  <div class="max-w-3xl mx-auto p-6">
+    <h1 class="text-4xl font-bold mb-4 text-center">Ego vs Essence</h1>
+    <p class="text-center text-lg mb-8">Discover your current mode of being. Are you operating from protection or presence?</p>
+
+    <!-- Questions -->
+    <form id="quizForm">
+      <div id="questionsContainer" class="space-y-6"></div>
+
+      <!-- Submit Button -->
+      <div class="text-center mt-10">
+        <button type="submit" class="bg-indigo-600 text-white px-6 py-3 rounded-full text-lg shadow hover:bg-indigo-700">Submit & See Result</button>
+      </div>
+    </form>
+
+    <!-- Result Section -->
+    <div class="mt-10 hidden" id="result">
+      <div class="bg-white rounded-2xl shadow p-6 text-center">
+        <div id="resultIcon" class="text-6xl mb-4"></div>
+        <h2 id="resultTitle" class="text-2xl font-bold mb-2"></h2>
+        <p id="resultDescription" class="mb-4 text-gray-700"></p>
+        <p id="resultReflection" class="italic text-indigo-600"></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const archetypes = [
+      {
+        name: "The Defender",
+        icon: "🛡️",
+        range: [0, 18],
+        description: "You’ve armored up. The world feels like something to conquer or survive. You might be craving validation, control, or protection.",
+        reflection: "What would it look like to soften without losing your strength?"
+      },
+      {
+        name: "The Seeker",
+        icon: "🔍",
+        range: [19, 34],
+        description: "You’re noticing your patterns. There’s a subtle war between ego's familiar grip and essence’s quiet whisper.",
+        reflection: "Where are you still seeking approval instead of giving yourself permission?"
+      },
+      {
+        name: "The Alchemist",
+        icon: "🔥",
+        range: [35, 49],
+        description: "You’re transmuting fear into fuel. You act with intention, even when it's hard. You are in the fire—and learning to dance in it.",
+        reflection: "What truth are you ready to live, even if no one claps?"
+      },
+      {
+        name: "The Luminary",
+        icon: "🌌",
+        range: [50, 60],
+        description: "You lead from a place beyond needing to prove. You *move like meaning*.",
+        reflection: "Where are you being called to model this way of being for others?"
+      }
+    ];
+
+    const questions = []; // Placeholder for actual questions (omitted for brevity)
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    const container = document.getElementById("questionsContainer");
+    shuffle(questions).forEach((q, idx) => {
+      const options = shuffle([...q.options]);
+      const block = document.createElement("div");
+      block.className = "bg-white rounded-2xl shadow p-6";
+      block.innerHTML = `
+        <h2 class="text-xl font-semibold mb-4">${idx + 1}. ${q.text}</h2>
+        <div class="space-y-2">
+          ${options.map((opt, i) => `
+            <label class="block bg-gray-100 rounded-xl p-3 cursor-pointer hover:bg-gray-200">
+              <input type="radio" name="q${idx}" value="${q.options.indexOf(opt)}" class="mr-2"> ${opt}
+            </label>
+          `).join("")}
+        </div>
+      `;
+      container.appendChild(block);
+    });
+
+    document.getElementById("quizForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      let totalScore = 0;
+      for (let i = 0; i < questions.length; i++) {
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        if (selected) {
+          totalScore += parseInt(selected.value);
+        }
+      }
+
+      let result = archetypes.find(type => totalScore >= type.range[0] && totalScore <= type.range[1]);
+      if (result) {
+        document.getElementById("resultIcon").textContent = result.icon;
+        document.getElementById("resultTitle").textContent = `You are ${result.name}`;
+        document.getElementById("resultDescription").textContent = result.description;
+        document.getElementById("resultReflection").textContent = `Reflection: ${result.reflection}`;
+        document.getElementById("result").classList.remove("hidden");
+        window.scrollTo({ top: document.getElementById("result").offsetTop, behavior: 'smooth' });
+      }
+    });
+  </script>
+</body>
+</html>
